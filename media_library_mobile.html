@@ -1,0 +1,355 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f6f6f8;--surface:#fff;--surface2:#f0f0f4;
+  --text:#111;--text2:#555;--text3:#999;
+  --accent:#5b6af7;--accent-bg:#eef0ff;
+  --border:#e8e8ec;--radius:14px;--radius-sm:8px;
+  --book:#f97316;--movie:#ec4899;--anime:#8b5cf6;--drama:#0ea5e9;
+  --book-bg:#fff7ed;--movie-bg:#fdf2f8;--anime-bg:#f5f3ff;--drama-bg:#f0f9ff;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
+
+/* Header */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px 10px;position:sticky;top:0;z-index:50}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.app-title{font-size:20px;font-weight:700;letter-spacing:-.5px;color:var(--text)}
+.add-fab{background:var(--accent);color:#fff;border:none;border-radius:50px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:opacity .15s}
+.add-fab:active{opacity:.8}
+.add-fab svg{width:15px;height:15px;fill:none;stroke:#fff;stroke-width:2.5}
+.search-box{position:relative}
+.search-box input{width:100%;background:var(--surface2);border:none;border-radius:var(--radius-sm);padding:9px 12px 9px 36px;font-size:14px;color:var(--text);outline:none}
+.search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--text3);fill:none;stroke-width:2}
+
+/* Tabs */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px}
+.tab{flex:1;background:none;border:none;padding:11px 0;font-size:13px;font-weight:600;color:var(--text3);border-bottom:2px solid transparent;cursor:pointer;transition:color .15s,border-color .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.badge{background:var(--accent);color:#fff;border-radius:10px;font-size:10px;padding:1px 6px;font-weight:700}
+.tab:not(.active) .badge{background:var(--surface2);color:var(--text3)}
+
+/* Cat filter */
+.cats{display:flex;gap:6px;padding:12px 16px;overflow-x:auto;scrollbar-width:none;background:var(--surface);border-bottom:1px solid var(--border)}
+.cats::-webkit-scrollbar{display:none}
+.cat-btn{background:var(--surface2);border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .15s}
+.cat-btn.active{color:#fff;background:var(--accent)}
+.cat-book.active{background:var(--book)}
+.cat-anime.active{background:var(--anime)}
+.cat-movie.active{background:var(--movie)}
+.cat-drama.active{background:var(--drama)}
+
+/* Today's pick */
+.today{margin:12px 16px;background:var(--accent-bg);border:1.5px solid var(--accent);border-radius:var(--radius);padding:14px;display:flex;gap:12px;align-items:center}
+.today-img{width:52px;height:74px;border-radius:var(--radius-sm);object-fit:cover;background:var(--surface2);flex-shrink:0}
+.today-body{flex:1;min-width:0}
+.today-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--accent);text-transform:uppercase;margin-bottom:3px}
+.today-title{font-size:15px;font-weight:700;line-height:1.3;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.today-cat{font-size:12px;color:var(--text2);margin-bottom:8px}
+.today-actions{display:flex;gap:6px}
+.today-done{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer}
+.today-shuffle{background:var(--surface);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer}
+
+/* Gallery */
+.gallery-wrap{flex:1;padding:12px 16px 80px;overflow-y:auto}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:340px){.gallery{grid-template-columns:repeat(2,1fr)}}
+
+/* Card */
+.card{background:var(--surface);border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);position:relative;cursor:pointer;transition:transform .15s}
+.card:active{transform:scale(.97)}
+.poster-wrap{position:relative;padding-top:150%;overflow:hidden;background:var(--surface2)}
+.poster-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cat-dot{position:absolute;top:5px;left:5px;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;background:rgba(255,255,255,.92);backdrop-filter:blur(4px)}
+.card-del{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:6px;background:rgba(0,0,0,.55);border:none;color:#fff;font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1}
+.card:hover .card-del{display:flex}
+.card-info{padding:7px 8px 8px}
+.card-name{font-size:11px;font-weight:600;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--text)}
+.cat-tag{display:inline-block;margin-top:4px;font-size:9px;font-weight:700;border-radius:4px;padding:1px 5px}
+.tag-book{background:var(--book-bg);color:var(--book)}
+.tag-movie{background:var(--movie-bg);color:var(--movie)}
+.tag-anime{background:var(--anime-bg);color:var(--anime)}
+.tag-drama{background:var(--drama-bg);color:var(--drama)}
+
+/* Empty */
+.empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text3)}
+.empty-icon{font-size:40px;margin-bottom:8px}
+.empty-msg{font-size:13px;line-height:1.6}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0}
+.modal-bg.hidden{display:none}
+.modal{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 20px 36px;width:100%;max-width:480px;animation:slideUp .22s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:14px}
+.modal input{width:100%;background:var(--surface2);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:12px 14px;font-size:15px;color:var(--text);outline:none;margin-bottom:12px;transition:border-color .15s}
+.modal input:focus{border-color:var(--accent);background:var(--surface)}
+.modal-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:7px}
+.modal-cats{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.modal-cat{background:var(--surface2);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s}
+.modal-cat.active[data-c=book]{background:var(--book-bg);border-color:var(--book);color:var(--book)}
+.modal-cat.active[data-c=movie]{background:var(--movie-bg);border-color:var(--movie);color:var(--movie)}
+.modal-cat.active[data-c=anime]{background:var(--anime-bg);border-color:var(--anime);color:var(--anime)}
+.modal-cat.active[data-c=drama]{background:var(--drama-bg);border-color:var(--drama);color:var(--drama)}
+.modal-lists{display:flex;gap:8px;margin-bottom:20px}
+.modal-list{flex:1;background:var(--surface2);border:1.5px solid transparent;border-radius:var(--radius-sm);padding:10px 8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);text-align:center;transition:all .15s}
+.modal-list.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.modal-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:14px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.modal-btn:active{opacity:.85}
+
+/* Cat select on long press */
+.cat-picker{position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:var(--radius-sm);z-index:10}
+.cat-picker button{background:rgba(255,255,255,.9);border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;width:80%}
+.cat-picker .cp-close{background:rgba(255,255,255,.5);color:#fff;font-size:10px}
+</style>
+
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="app-title">📋 MyList</div>
+      <button class="add-fab" onclick="openModal()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        追加
+      </button>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+      <input type="text" id="searchInput" placeholder="タイトルで検索...">
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tabArchive" onclick="switchTab('archive')">✅ 見た <span class="badge" id="cntA">0</span></button>
+    <button class="tab" id="tabWishlist" onclick="switchTab('wishlist')">🔖 見たい <span class="badge" id="cntW">0</span></button>
+  </div>
+
+  <div class="cats">
+    <button class="cat-btn active" data-cat="all" onclick="setFilter('all',this)">すべて</button>
+    <button class="cat-btn cat-book" data-cat="book" onclick="setFilter('book',this)">📚 本</button>
+    <button class="cat-btn cat-movie" data-cat="movie" onclick="setFilter('movie',this)">🎬 映画</button>
+    <button class="cat-btn cat-anime" data-cat="anime" onclick="setFilter('anime',this)">🎌 アニメ</button>
+    <button class="cat-btn cat-drama" data-cat="drama" onclick="setFilter('drama',this)">📺 ドラマ</button>
+  </div>
+
+  <div class="today hidden" id="today">
+    <img class="today-img" id="todayImg" src="" alt="">
+    <div class="today-body">
+      <div class="today-label">Today's Pick</div>
+      <div class="today-title" id="todayTitle"></div>
+      <div class="today-cat" id="todayCat"></div>
+      <div class="today-actions">
+        <button class="today-done" onclick="markDone()">✅ 見た！</button>
+        <button class="today-shuffle" onclick="pickToday()">🔀</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery-wrap">
+    <div class="gallery" id="gallery"></div>
+  </div>
+</div>
+
+<div class="modal-bg hidden" id="modalBg" onclick="bgClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>作品を追加</h3>
+    <input type="text" id="titleInput" placeholder="タイトルを入力..." autocomplete="off">
+    <div class="modal-label">カテゴリ</div>
+    <div class="modal-cats">
+      <button class="modal-cat" data-c="book" onclick="selCat(this)">📚 本</button>
+      <button class="modal-cat" data-c="movie" onclick="selCat(this)">🎬 映画</button>
+      <button class="modal-cat active" data-c="anime" onclick="selCat(this)">🎌 アニメ</button>
+      <button class="modal-cat" data-c="drama" onclick="selCat(this)">📺 ドラマ</button>
+    </div>
+    <div class="modal-label">リスト</div>
+    <div class="modal-lists">
+      <button class="modal-list active" data-l="archive" onclick="selList(this)">✅ 見た</button>
+      <button class="modal-list" data-l="wishlist" onclick="selList(this)">🔖 見たい</button>
+    </div>
+    <button class="modal-btn" onclick="addItem()">追加する</button>
+  </div>
+</div>
+
+<script>
+const ICONS={book:'📚',movie:'🎬',anime:'🎌',drama:'📺'};
+const NAMES={book:'本',movie:'映画',anime:'アニメ',drama:'ドラマ'};
+let data=JSON.parse(localStorage.getItem('mylist2')||'[]');
+let tab='archive',filter='all',q='',selCatV='anime',selListV='archive',todayItem=null;
+
+const save=()=>localStorage.setItem('mylist2',JSON.stringify(data));
+
+function img(title,cat){
+  const e=encodeURIComponent(title);
+  if(cat==='book') return `https://covers.openlibrary.org/b/title/${e}-M.jpg`;
+  const kw={movie:'movie poster film',anime:'anime illustration',drama:'tv series drama'}[cat]||'entertainment';
+  return `https://source.unsplash.com/featured/200x300/?${encodeURIComponent(title+' '+kw)}`;
+}
+
+function fallback(title){
+  const colors=['4f46e5','db2777','f97316','0ea5e9','8b5cf6','16a34a'];
+  const c=colors[title.charCodeAt(0)%colors.length];
+  const initials=title.replace(/[^\p{L}\p{N}]/gu,' ').split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('');
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials||title.slice(0,2))}&size=200&background=${c}&color=fff&bold=true&length=2`;
+}
+
+function guess(t){
+  const s=t.toLowerCase();
+  if(/巻|小説|漫画|マンガ|文庫|著/.test(s)) return 'book';
+  if(/劇場版|ova|鬼滅|進撃|ワンピ|naruto|コナン|アニメ/.test(s)) return 'anime';
+  if(/映画|劇場|シネマ|film/.test(s)) return 'movie';
+  if(/ドラマ|韓国|episode|話/.test(s)) return 'drama';
+  return null;
+}
+
+function openModal(){
+  document.getElementById('modalBg').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('titleInput').focus(),100);
+}
+function closeModal(){
+  document.getElementById('modalBg').classList.add('hidden');
+  document.getElementById('titleInput').value='';
+}
+function bgClick(e){if(e.target===document.getElementById('modalBg'))closeModal();}
+
+function selCat(el){
+  document.querySelectorAll('.modal-cat').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active'); selCatV=el.dataset.c;
+}
+function selList(el){
+  document.querySelectorAll('.modal-list').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active'); selListV=el.dataset.l;
+}
+
+function addItem(){
+  const t=document.getElementById('titleInput').value.trim();
+  if(!t) return;
+  const cat=guess(t)||selCatV;
+  data.push({id:Date.now()+'',title:t,cat,list:selListV,img:img(t,cat)});
+  save(); closeModal(); render();
+}
+
+function deleteItem(id){
+  data=data.filter(d=>d.id!==id);
+  if(todayItem?.id===id){todayItem=null;pickToday();}
+  save(); render();
+}
+
+function changeCat(id,cat,el){
+  const item=data.find(d=>d.id===id);
+  if(item){item.cat=cat;item.img=img(item.title,cat);save();}
+  el.parentElement.querySelectorAll('.cat-picker').forEach(e=>e.remove());
+  render();
+}
+
+function showCatPicker(id,el){
+  if(el.querySelector('.cat-picker')) return;
+  const p=document.createElement('div');
+  p.className='cat-picker';
+  p.innerHTML=Object.entries(ICONS).map(([k,v])=>`<button onclick="event.stopPropagation();changeCat('${id}','${k}',this.closest('.poster-wrap'))">${v} ${NAMES[k]}</button>`).join('')+`<button class="cp-close" onclick="event.stopPropagation();this.parentElement.remove()">✕ 閉じる</button>`;
+  el.appendChild(p);
+}
+
+function switchTab(t){
+  tab=t;
+  document.getElementById('tabArchive').classList.toggle('active',t==='archive');
+  document.getElementById('tabWishlist').classList.toggle('active',t==='wishlist');
+  render();
+}
+
+function setFilter(f,el){
+  filter=f;
+  document.querySelectorAll('.cat-btn').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active'); render();
+}
+
+function pickToday(){
+  const pool=data.filter(d=>d.list==='wishlist');
+  if(!pool.length){todayItem=null;renderToday();return;}
+  let n;
+  do{n=pool[Math.floor(Math.random()*pool.length)];}
+  while(pool.length>1&&todayItem&&n.id===todayItem.id);
+  todayItem=n; renderToday();
+}
+
+function renderToday(){
+  const el=document.getElementById('today');
+  if(!todayItem||tab!=='wishlist'){el.classList.add('hidden');return;}
+  el.classList.remove('hidden');
+  document.getElementById('todayTitle').textContent=todayItem.title;
+  document.getElementById('todayCat').textContent=ICONS[todayItem.cat]+' '+NAMES[todayItem.cat];
+  const i=document.getElementById('todayImg');
+  i.src=todayItem.img;
+  i.onerror=()=>{i.src=fallback(todayItem.title);i.onerror=null;};
+}
+
+function markDone(){
+  if(!todayItem) return;
+  const item=data.find(d=>d.id===todayItem.id);
+  if(item) item.list='archive';
+  const prev=todayItem; todayItem=null;
+  save(); render();
+}
+
+function render(){
+  const arch=data.filter(d=>d.list==='archive');
+  const wish=data.filter(d=>d.list==='wishlist');
+  document.getElementById('cntA').textContent=arch.length;
+  document.getElementById('cntW').textContent=wish.length;
+
+  let items=data.filter(d=>d.list===tab);
+  if(filter!=='all') items=items.filter(d=>d.cat===filter);
+  if(q) items=items.filter(d=>d.title.includes(q));
+
+  const g=document.getElementById('gallery');
+  if(!items.length){
+    g.innerHTML=`<div class="empty"><div class="empty-icon">${tab==='archive'?'🎬':'🔖'}</div><div class="empty-msg">${tab==='archive'?'まだ作品がありません\n右上の「追加」から登録しよう':'Wishlistが空です\n見たい作品を登録しよう'}</div></div>`;
+    renderToday(); return;
+  }
+
+  g.innerHTML=items.map(item=>{
+    const fb=fallback(item.title);
+    return `<div class="card">
+      <div class="poster-wrap" onclick="showCatPicker('${item.id}',this)">
+        <img src="${item.img}" alt="${item.title}" onerror="this.src='${fb}';this.onerror=null" loading="lazy">
+        <div class="cat-dot">${ICONS[item.cat]}</div>
+        <button class="card-del" onclick="event.stopPropagation();deleteItem('${item.id}')">✕</button>
+      </div>
+      <div class="card-info">
+        <div class="card-name">${item.title}</div>
+        <span class="cat-tag tag-${item.cat}">${NAMES[item.cat]}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  renderToday();
+}
+
+document.getElementById('searchInput').addEventListener('input',e=>{q=e.target.value;render();});
+document.getElementById('titleInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') addItem();
+  if(e.key==='Escape') closeModal();
+  const g=guess(e.target.value);
+  if(g){
+    document.querySelectorAll('.modal-cat').forEach(b=>b.classList.remove('active'));
+    document.querySelector(`.modal-cat[data-c="${g}"]`)?.classList.add('active');
+    selCatV=g;
+  }
+});
+
+if(!data.length){
+  data=[
+    {id:'1',title:'進撃の巨人',cat:'anime',list:'archive',img:'https://source.unsplash.com/featured/200x300/?anime'},
+    {id:'2',title:'オッペンハイマー',cat:'movie',list:'archive',img:'https://source.unsplash.com/featured/200x300/?movie'},
+    {id:'3',title:'1Q84',cat:'book',list:'archive',img:'https://source.unsplash.com/featured/200x300/?book'},
+    {id:'4',title:'梨泰院クラス',cat:'drama',list:'wishlist',img:'https://source.unsplash.com/featured/200x300/?drama'},
+    {id:'5',title:'ジョーカー',cat:'movie',list:'wishlist',img:'https://source.unsplash.com/featured/200x300/?joker'},
+    {id:'6',title:'鬼滅の刃',cat:'anime',list:'wishlist',img:'https://source.unsplash.com/featured/200x300/?sword'},
+  ];
+  save();
+}
+
+render();
+if(data.some(d=>d.list==='wishlist')) pickToday();
+</script>
