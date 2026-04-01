@@ -1,0 +1,368 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-mono, monospace); }
+
+  .board { background: #09090b; min-height: 100vh; color: #f4f4f5; padding: 0 0 40px; }
+
+  .header {
+    position: sticky; top: 0; z-index: 30;
+    border-bottom: 1px solid rgba(120,53,15,0.4);
+    background: rgba(9,9,11,0.92);
+    backdrop-filter: blur(8px);
+    padding: 10px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 32px; height: 32px;
+    border: 1px solid #92400e;
+    background: rgba(120,53,15,0.3);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .logo-text { line-height: 1.2; }
+  .logo-title { font-size: 13px; font-weight: 700; letter-spacing: 0.15em; color: #fbbf24; text-transform: uppercase; }
+  .logo-sub { font-size: 11px; color: #71717a; }
+
+  .header-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px; font-size: 12px; font-weight: 700;
+    border: 1px solid #d97706; color: #fde68a;
+    background: rgba(120,53,15,0.3);
+    border-radius: 3px; cursor: pointer;
+    font-family: var(--font-mono, monospace);
+    letter-spacing: 0.03em;
+    transition: background 0.15s;
+  }
+  .header-btn:hover { background: rgba(120,53,15,0.5); }
+
+  .main { max-width: 960px; margin: 0 auto; padding: 28px 16px 0; }
+
+  .section-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
+  }
+  .divider-line { flex: 1; height: 1px; background: rgba(120,53,15,0.3); }
+  .divider-label { font-size: 11px; color: #d97706; letter-spacing: 0.15em; text-transform: uppercase; padding: 0 8px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 28px; }
+
+  .card {
+    border-radius: 3px; border: 1px solid rgba(120,53,15,0.45);
+    background: linear-gradient(135deg, #18181b, #18181b, rgba(120,53,15,0.08));
+    overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .card:hover { border-color: rgba(217,119,6,0.6); box-shadow: 0 4px 20px rgba(120,53,15,0.18); }
+  .card.full { border-color: #3f3f46; background: rgba(24,24,27,0.5); opacity: 0.72; }
+
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 14px;
+    border-bottom: 1px solid rgba(120,53,15,0.25);
+    background: rgba(120,53,15,0.12);
+  }
+  .card-header-left { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(251,191,36,0.75); letter-spacing: 0.15em; text-transform: uppercase; }
+  .flame-icon { color: #f59e0b; font-size: 12px; }
+  .rank { font-size: 11px; color: #d97706; }
+
+  .card-body { padding: 14px; }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .shop-name { font-size: 14px; font-weight: 700; color: #f4f4f5; line-height: 1.3; margin-bottom: 5px; font-family: sans-serif; }
+  .category-badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    border-radius: 2px; border: 1px solid; font-family: var(--font-mono, monospace);
+  }
+  .badge-red { color: #f87171; border-color: #b91c1c; background: rgba(127,29,29,0.3); }
+  .badge-orange { color: #fb923c; border-color: #c2410c; background: rgba(124,45,18,0.3); }
+  .badge-green { color: #4ade80; border-color: #15803d; background: rgba(20,83,45,0.3); }
+  .badge-blue { color: #60a5fa; border-color: #1d4ed8; background: rgba(29,78,216,0.2); }
+  .badge-yellow { color: #facc15; border-color: #a16207; background: rgba(113,63,18,0.3); }
+  .badge-gray { color: #a1a1aa; border-color: #52525b; background: rgba(39,39,42,0.5); }
+
+  .full-badge {
+    font-size: 10px; font-weight: 700; color: #f87171;
+    border: 1px solid #991b1b; padding: 4px 7px;
+    border-radius: 2px; background: rgba(127,29,29,0.35);
+    transform: rotate(1deg); flex-shrink: 0;
+    font-family: var(--font-mono, monospace);
+  }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+  .stat { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #a1a1aa; }
+  .stat-val { color: #e4e4e7; }
+  .stat-val.red { color: #f87171; }
+  .stat-muted { color: #52525b; }
+
+  .progress-track { height: 4px; background: #27272a; border-radius: 99px; overflow: hidden; margin-bottom: 12px; }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width 0.5s; }
+  .progress-fill.amber { background: #f59e0b; }
+  .progress-fill.red { background: #dc2626; }
+
+  .card-actions { display: flex; gap: 8px; }
+  .btn-join {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 7px 10px; font-size: 12px; font-weight: 700;
+    border-radius: 2px; cursor: pointer;
+    font-family: var(--font-mono, monospace);
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.03em;
+  }
+  .btn-join.active {
+    border: 1px solid #d97706; color: #fde68a;
+    background: rgba(120,53,15,0.4);
+  }
+  .btn-join.active:hover { background: rgba(120,53,15,0.6); }
+  .btn-join.active:active { transform: scale(0.96); }
+  .btn-join.disabled {
+    border: 1px solid #3f3f46; color: #52525b;
+    background: rgba(39,39,42,0.4); cursor: not-allowed;
+  }
+
+  .btn-cheer {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 10px; font-size: 12px;
+    border: 1px solid #3f3f46; color: #71717a;
+    background: rgba(39,39,42,0.4);
+    border-radius: 2px; cursor: pointer;
+    font-family: var(--font-mono, monospace);
+    transition: border-color 0.15s, color 0.15s, transform 0.1s;
+  }
+  .btn-cheer:hover { border-color: #71717a; color: #d4d4d8; }
+  .btn-cheer:active { transform: scale(0.96); }
+
+  .toast-wrap { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 99; pointer-events: none; }
+  .toast {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 3px;
+    font-size: 12px; font-family: var(--font-mono, monospace);
+    pointer-events: all; max-width: 300px;
+    animation: slideIn 0.2s ease;
+    border: 1px solid;
+  }
+  .toast.success { background: rgba(120,53,15,0.9); border-color: #d97706; color: #fde68a; }
+  .toast.error   { background: rgba(127,29,29,0.9); border-color: #dc2626; color: #fca5a5; }
+  .toast.info    { background: rgba(24,24,27,0.95); border-color: #52525b; color: #d4d4d8; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(4px);
+    z-index: 50;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal {
+    width: 100%; max-width: 420px;
+    border: 1px solid rgba(180,83,9,0.6);
+    background: #09090b;
+    border-radius: 3px;
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 18px;
+    border-bottom: 1px solid rgba(120,53,15,0.3);
+    background: rgba(120,53,15,0.15);
+  }
+  .modal-title { display: flex; align-items: center; gap: 7px; font-size: 11px; color: #fbbf24; letter-spacing: 0.15em; text-transform: uppercase; }
+  .modal-close { background: none; border: none; color: #71717a; cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 4px; }
+  .modal-close:hover { color: #d4d4d8; }
+  .modal-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+
+  .field label { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #71717a; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 8px 10px;
+    background: #18181b; border: 1px solid #3f3f46;
+    border-radius: 2px; color: #e4e4e7;
+    font-size: 12px; font-family: var(--font-mono, monospace);
+    outline: none; transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus { border-color: #d97706; }
+  .field input::placeholder { color: #52525b; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .submit-btn {
+    width: 100%; padding: 10px;
+    border: 1px solid #d97706; color: #fde68a;
+    background: rgba(120,53,15,0.45);
+    border-radius: 2px; cursor: pointer;
+    font-size: 12px; font-weight: 700;
+    font-family: var(--font-mono, monospace);
+    letter-spacing: 0.06em;
+    transition: background 0.15s;
+  }
+  .submit-btn:hover { background: rgba(120,53,15,0.65); }
+</style>
+
+<div class="board" id="board">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🔥</div>
+      <div class="logo-text">
+        <div class="logo-title">Lunch Boarding</div>
+        <div class="logo-sub">一飯行こうぜ！</div>
+      </div>
+    </div>
+    <button class="header-btn" onclick="openModal()">＋ クエスト発令</button>
+  </div>
+
+  <div class="main" id="main"></div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<div class="modal-backdrop" id="modal" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📜 新規クエスト依頼書</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>🗺 お店の名前</label>
+        <input id="f-shop" type="text" placeholder="例：焼肉ホルモン 炎の番人" />
+      </div>
+      <div class="field">
+        <label>🍴 食べたいもの</label>
+        <select id="f-cat">
+          <option>焼肉</option><option>ラーメン</option><option>タイ料理</option>
+          <option>寿司</option><option>カレー</option><option>中華</option>
+          <option>イタリアン</option><option>その他</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>👥 最大人数</label>
+          <input id="f-max" type="number" min="2" max="10" value="4" />
+        </div>
+        <div class="field">
+          <label>🕐 集合時間</label>
+          <input id="f-time" type="time" value="12:00" />
+        </div>
+      </div>
+      <button class="submit-btn" onclick="postQuest()">── クエストを発令する ──</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BADGE = { '焼肉':'badge-red','ラーメン':'badge-orange','タイ料理':'badge-green','寿司':'badge-blue','カレー':'badge-yellow','中華':'badge-orange','イタリアン':'badge-green','その他':'badge-gray' };
+const RANK = ['★','★★','★★★'];
+const MH = {
+  join: ['受注完了！腹を空かして来い！','一飯の義！共に戦おうぞ！','ハンターが一名加わった！'],
+  cheer: ['グッジョブ！飯への情熱が伝わってきた！','激励を受け取った！','ナイスサポート！'],
+  post: ['依頼書をボードに貼り付けた！','新たなクエストが発令された！','クエストを発令した！仲間が集まるのを待て！'],
+  full: ['このクエストは定員に達している...','満員じゃ！クエストを選び直せ！'],
+};
+const rnd = arr => arr[Math.floor(Math.random()*arr.length)];
+
+let quests = [
+  { id:'q1', shopName:'焼肉ホルモン 炎の番人', foodCategory:'焼肉', maxParticipants:4, currentParticipants:2, meetingTime:'12:00', status:'open', cheersCount:5 },
+  { id:'q2', shopName:'ラーメン道場 鬼辛', foodCategory:'ラーメン', maxParticipants:3, currentParticipants:3, meetingTime:'12:15', status:'full', cheersCount:12 },
+  { id:'q3', shopName:'タイ料理 バンコク食堂', foodCategory:'タイ料理', maxParticipants:5, currentParticipants:1, meetingTime:'13:00', status:'open', cheersCount:3 },
+  { id:'q4', shopName:'寿司割烹 海神', foodCategory:'寿司', maxParticipants:6, currentParticipants:4, meetingTime:'11:45', status:'open', cheersCount:8 },
+  { id:'q5', shopName:'カレーハウス スパイス魔境', foodCategory:'カレー', maxParticipants:4, currentParticipants:2, meetingTime:'12:30', status:'open', cheersCount:7 },
+];
+
+function getRank(cur,max){ const r=cur/max; return r<0.4?0:r<0.8?1:2; }
+
+function renderCard(q){
+  const full = q.status==='full'||q.currentParticipants>=q.maxParticipants;
+  const pct = Math.min(q.currentParticipants/q.maxParticipants*100,100);
+  const badge = BADGE[q.foodCategory]||'badge-gray';
+  const rank = RANK[getRank(q.currentParticipants,q.maxParticipants)];
+  return `<div class="card${full?' full':''}" id="card-${q.id}">
+    <div class="card-header">
+      <div class="card-header-left"><span class="flame-icon">🔥</span>Lunch Quest</div>
+      <span class="rank">${rank}</span>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div>
+          <div class="shop-name">${q.shopName}</div>
+          <span class="category-badge ${badge}">${q.foodCategory}</span>
+        </div>
+        ${full?'<div class="full-badge">受注不可</div>':''}
+      </div>
+      <div class="stats">
+        <div class="stat">🕐 <span class="stat-val">${q.meetingTime}</span></div>
+        <div class="stat">👥 <span class="stat-val${full?' red':''}">${q.currentParticipants}</span><span class="stat-muted"> / ${q.maxParticipants}</span></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill ${full?'red':'amber'}" style="width:${pct}%"></div></div>
+      <div class="card-actions">
+        <button class="btn-join ${full?'disabled':'active'}" onclick="joinQuest('${q.id}')" ${full?'disabled':''}>
+          ⚔ ${full?'満員':'受注する'}
+        </button>
+        <button class="btn-cheer" onclick="cheerQuest('${q.id}')">★ <span id="cheer-${q.id}">${q.cheersCount}</span></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const open = quests.filter(q=>q.status!=='full');
+  const full = quests.filter(q=>q.status==='full');
+  let html = '';
+  if(open.length){
+    html += `<div class="section-divider"><div class="divider-line"></div><div class="divider-label">受注可能なクエスト (${open.length})</div><div class="divider-line"></div></div>`;
+    html += `<div class="grid">${open.map(renderCard).join('')}</div>`;
+  }
+  if(full.length){
+    html += `<div class="section-divider"><div class="divider-line" style="background:#27272a"></div><div class="divider-label" style="color:#52525b">受注不可（満員） (${full.length})</div><div class="divider-line" style="background:#27272a"></div></div>`;
+    html += `<div class="grid">${full.map(renderCard).join('')}</div>`;
+  }
+  document.getElementById('main').innerHTML = html;
+}
+
+function toast(msg, type='success'){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icons = {success:'⚔',error:'🛡',info:'★'};
+  el.innerHTML = `<span>${icons[type]||'⚔'}</span><span>${msg}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity 0.3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 3200);
+}
+
+function joinQuest(id){
+  const idx = quests.findIndex(q=>q.id===id);
+  if(idx===-1) return;
+  const q = quests[idx];
+  if(q.currentParticipants>=q.maxParticipants){ toast(rnd(MH.full),'error'); return; }
+  quests[idx] = {...q, currentParticipants: q.currentParticipants+1};
+  if(quests[idx].currentParticipants>=quests[idx].maxParticipants) quests[idx].status='full';
+  render();
+  toast(rnd(MH.join),'success');
+}
+
+function cheerQuest(id){
+  const idx = quests.findIndex(q=>q.id===id);
+  if(idx===-1) return;
+  quests[idx] = {...quests[idx], cheersCount: quests[idx].cheersCount+1};
+  const el = document.getElementById('cheer-'+id);
+  if(el) el.textContent = quests[idx].cheersCount;
+  toast(rnd(MH.cheer),'info');
+}
+
+function openModal(){ document.getElementById('modal').style.display='flex'; }
+function closeModal(){ document.getElementById('modal').style.display='none'; }
+
+function postQuest(){
+  const shop = document.getElementById('f-shop').value.trim();
+  const cat = document.getElementById('f-cat').value;
+  const max = parseInt(document.getElementById('f-max').value)||4;
+  const time = document.getElementById('f-time').value||'12:00';
+  if(!shop){ document.getElementById('f-shop').focus(); return; }
+  quests.unshift({ id:'q'+Date.now(), shopName:shop, foodCategory:cat, maxParticipants:max, currentParticipants:0, meetingTime:time, status:'open', cheersCount:0 });
+  document.getElementById('f-shop').value='';
+  closeModal();
+  render();
+  toast(rnd(MH.post),'success');
+}
+
+document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+render();
+</script>
